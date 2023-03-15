@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 별명 부여 -->
+	<!-- <typeAliases> 
+		<typeAlias type="pack.business.DataDto" alias="dto"/>
+	</typeAliases> -->
+
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+
+	<!-- DB접속 정보 셋팅 -->
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+				<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:xe" />
+				<property name="username" value="MyDB" />
+				<property name="password" value="ORACLE" />
+			</dataSource>
+		</environment>
+	</environments>
+	
+	
+
+	<!-- mapper.xml 파일 설정 -->
+	<!-- 이 곳에 등록된 xml 파일만이 쿼리문이 있는 파일로 인식 됨. -->
+	<mappers>
+		<mapper resource="sqlmap/member-mapper.xml" />
+		<mapper resource="sqlmap/board-mapper.xml" />
+		<mapper resource="sqlmap/reply-mapper.xml" />
+	</mappers>
+
+</configuration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

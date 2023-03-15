@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 쿼리에 빈값을 채워주는 방식 -->
+<!-- 1. 빈값을 채우기 위해 DTO객체가 넘어왓을 경우 -->
+<!-- DTO 객체의 GETTER를 호출해서 빈 값을 채워 줌. -->
+<!-- 2. 빈 값을 채우기 위해 int나 String 데이터 하나가 넘왓을 경우 -->
+<!-- 이 때는 쿼리에서 채워줄 값이 하나 밖에 없는 상황이기 떄문에 -->
+<!-- 넘어온 데이터의 이름은 신경쓰지 않고, 바로 빈 값을 채워줌. -->
+<mapper namespace="boardMapper">
+	<resultMap type="dto.BoardDTO" id="board">
+		<!-- column : 연결시킬 테이블의 컬럼명 -->
+		<!-- property : dto 객체에서 테이블의 컬럼과 연결할 변수 -->
+		<!-- pk컬럼은 id로 설정한다 -->
+		<id column="BOARD_NUM"		property="boardNum"/>
+		<result column="TITLE"			property="title"/>
+		<result column="WRITER" 		property="writer"/>
+		<result column="CREATE_DATE" 		property="createDate"/>
+		<result column="CONTENT" 		property="content"/>
+		<result column="READ_CNT"		property="readCnt"/>
+	</resultMap>
+	
+	<!-- 게시글 목록 조회 -->
+	<!-- #{boardNum} = '1'; -> 홀따옴표가 무조건 붙어서나온다. -->
+	<!-- 숫자는 자동으로 형변환을 해주지만 문자열은 ''가 붙으니 컬럼명에 -->
+	<!-- #{}쓸때는 주의!!! -->
+	<select id="selectBoardList" resultMap="board">
+		SELECT BOARD_NUM
+			, TITLE
+			, WRITER
+			, READ_CNT
+			, TO_CHAR(CREATE_DATE, 'YY.MM.DD') AS CREATE_DATE
+		FROM BOARD
+		<if test="searchName != null and !searchName.equals('')">
+		WHERE UPPER(${selectName}) LIKE '%'||UPPER(#{searchName})||'%'
+		</if>
+		ORDER BY BOARD_NUM ASC
+	</select>
+	
+	<!-- 게시글 등록 -->
+	<insert id="regBoard">
+		INSERT INTO BOARD (
+			BOARD_NUM
+			, TITLE
+			, WRITER
+			, CONTENT
+		) VALUES (
+			NVL((SELECT MAX(BOARD_NUM) FROM BOARD), 0) + 1
+			, #{title}
+			, #{writer}
+			, #{content}
+		)
+	</insert>
+	
+<!-- 	위의 해당 입력값들의 자세한 내용이다.
+	#{title} -> boardDTO.getTitle()
+	#{writer} -> boardDTO.getWritle() -->
+	
+	<!-- 게시글 상세조회 -->
+	<select id="selectBoardDetail" resultMap="board">
+		SELECT BOARD_NUM
+			, TITLE
+			, WRITER
+			, TO_CHAR(CREATE_DATE, 'YY.MM.DD HH24:MI') AS CREATE_DATE
+			, CONTENT
+			, READ_CNT
+		FROM BOARD
+		WHERE BOARD_NUM = #{boardNum}
+	</select>
+	
+	<!-- 게시글 상세조회시 조회수 증가 -->
+	<update id="increaseReadCnt">
+		UPDATE BOARD
+		SET
+			READ_CNT = READ_CNT+1
+		WHERE
+			BOARD_NUM = #{boardNum}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="deleteBoard">
+		DELETE BOARD
+		WHERE
+			BOARD_NUM = #{boardNum}
+	</delete>
+	
+	<!-- 게시글 수정 -->
+	<update id="updateBoardDetail">
+		UPDATE BOARD
+		SET
+			TITLE = #{title}
+			, CONTENT = #{content}
+		WHERE
+			BOARD_NUM = #{boardNum}
+	</update>
+	
+</mapper>
+
+
